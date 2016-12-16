@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	<tx:annotation-driven/> <!-- @Transaction 어노테이션 사용 설정. -->
+	
+	<context:component-scan base-package="jpabook.jpashop.service, jpabook.jpashop.repository" />
+	
+	<bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource">
+		<property name="driverClassName" value="org.h2.Driver" />
+		<property name="url" value="jdbc:h2:mem:jpashop" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />	
+	</bean>
+	
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" /><!--  JPA예외를 스프링이 추상화한 예외로 변환  -->
+	
+	
+	<!--  JPA 사용 설정  -->
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" value="jpabook.jpashop.domain" /><!-- @Entity 어노테이션 탐색 위치  -->
+		<property name="jpaVendorAdapter"><!-- 하이버네이트 구현체를 사용 설정. -->
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="jpaProperties"><!-- 하이버네이트 상세 설정 -->
+			<props>
+				<prop key="hiberante.dialect">org.hibernate.dialect.H2Dialect</prop><!-- 방언설정 -->
+				<prop key="hiberante.show_sql">true</prop><!-- SQL 출력하도록 설정. -->
+				<prop key="hibernate.format_sql">true</prop><!-- SQL 정렬해서 출력 -->
+				<prop key="hibernate.use_sql_comments">true</prop><!--  SQL 코멘트 출력하기  -->
+				<prop key="hibernate.id.new_generator_mappings">true</prop><!--  새로운 방식으로 ID 생성하기  -->
+				<prop key="hiberante.hbm2ddl.auto">create</prop><!-- 기존 DDL을 제거하고 새로 생성 -->
+			</props>
+		</property>
+	</bean>
+</beans>
